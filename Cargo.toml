@@ -120,6 +120,9 @@ memchr = "2.3"
 uuid = { version = "0.8", optional = true }
 smallvec = "1.6.1"
 
+[target.wasm32-unknown-unknown.dependencies]
+getrandom = { version = "0.2", features = ["js"] }
+
 [dev-dependencies]
 doc-comment = "0.3"
 tempfile = "3.1.0"
@@ -127,6 +130,7 @@ lazy_static = "1.4"
 regex = "1.3"
 uuid = { version = "0.8", features = ["v4"] }
 unicase = "2.6.0"
+wasm-bindgen-test = "0.3"
 # Use `bencher` over criterion because it builds much faster and we don't have
 # many benchmarks
 bencher = "0.1"
