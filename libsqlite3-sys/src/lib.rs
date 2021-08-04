@@ -47,7 +47,7 @@ impl Default for sqlite3_vtab_cursor {
 mod allocator {
 
     #[no_mangle]
-    pub unsafe fn malloc(len: usize) -> *mut u8 {
+    pub unsafe extern "C" fn malloc(len: usize) -> *mut u8 {
         let align = std::mem::align_of::<usize>();
         let layout = std::alloc::Layout::from_size_align_unchecked(len, align);
 
@@ -57,7 +57,7 @@ mod allocator {
     const SQLITE_PTR_SIZE: usize = 8;
 
     #[no_mangle]
-    pub unsafe fn free(ptr: *mut u8) {
+    pub unsafe extern "C" fn free(ptr: *mut u8) {
         let mut size_a = [0; SQLITE_PTR_SIZE];
 
         size_a.as_mut_ptr().copy_from(ptr, SQLITE_PTR_SIZE);
@@ -71,7 +71,7 @@ mod allocator {
     }
 
     #[no_mangle]
-    pub unsafe fn realloc(ptr: *mut u8, size: usize) -> *mut u8 {
+    pub unsafe extern "C" fn realloc(ptr: *mut u8, size: usize) -> *mut u8 {
         let align = std::mem::align_of::<usize>();
         let layout = std::alloc::Layout::from_size_align_unchecked(size, align);
 

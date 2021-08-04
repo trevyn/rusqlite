@@ -44,9 +44,9 @@ fn node_test() {
         })
         .unwrap();
 
-    for person in person_iter {
-        println!("Found person {:?}", person.unwrap());
-    }
-
-    assert_eq!(rusqlite::version(), "0");
+    let people: Vec<_> = person_iter.collect();
+    assert_eq!(
+        format!("{:?}", people),
+        r#"[Ok(Person { id: 1, name: "Steven", data: None })]"#
+    );
 }

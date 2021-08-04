@@ -256,6 +256,7 @@ mod build_bundled {
                 .flag("-DLONGDOUBLE_TYPE=double");
             cfg.include("sqlite3/wasm32-unknown-unknown/include");
             cfg.file("sqlite3/wasm32-unknown-unknown/sqlite_os.c");
+            cfg.file("sqlite3/wasm32-unknown-unknown-vfs.c");
             cfg.file("sqlite3/wasm32-unknown-unknown/libc/stdlib/qsort.c");
             cfg.file("sqlite3/wasm32-unknown-unknown/libc/string/strcmp.c");
             cfg.file("sqlite3/wasm32-unknown-unknown/libc/string/strcspn.c");
