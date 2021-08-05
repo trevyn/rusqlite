@@ -92,9 +92,12 @@ jobs:
 
       - run: cargo install wasm-pack
 
-      - name: Test macos-latest with Homebrew llvm
+      - name: Install Homebrew llvm
         if: matrix.os == 'macos-latest'
         run: brew install llvm
+
+      - name: Test macos-latest with Homebrew llvm
+        if: matrix.os == 'macos-latest'
         env:
           CC: /usr/local/opt/llvm/bin/clang
           AR: /usr/local/opt/llvm/bin/llvm-ar
