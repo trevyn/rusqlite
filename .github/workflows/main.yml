@@ -10,7 +10,7 @@ on:
       - master
   schedule:
     - cron: "00 01 * * *"
-  workflow_dispatch:
+  workflow_dispatch
 env:
   RUST_BACKTRACE: short
   # CI builds don't benefit very much from this.
@@ -96,15 +96,15 @@ jobs:
         if: matrix.os == 'macos-latest'
         run: brew install llvm
 
-      - name: Test macos-latest with Homebrew llvm
+      - name: Test wasm-pack macos-latest with Homebrew llvm
         if: matrix.os == 'macos-latest'
         env:
           CC: /usr/local/opt/llvm/bin/clang
           AR: /usr/local/opt/llvm/bin/llvm-ar
         run: wasm-pack test --node --features bundled
 
-      - name: Test ubuntu-latest
-        if: matrix.os == 'ubuntu-latest'
+      - name: Test wasm-pack ${{ matrix.host }}
+        if: matrix.os != 'macos-latest'
         run: wasm-pack test --node --features bundled
 
   test-sqlcipher-bundled:
