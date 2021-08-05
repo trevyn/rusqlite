@@ -14,3 +14,5 @@ struct tm {
     const char *__tm_zone;
     int __tm_nsec;
 };
+
+struct tm *localtime_r (const time_t *timep, struct tm *tmp);
