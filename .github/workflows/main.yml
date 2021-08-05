@@ -10,6 +10,7 @@ on:
       - master
   schedule:
     - cron: "00 01 * * *"
+  workflow_dispatch:
 env:
   RUST_BACKTRACE: short
   # CI builds don't benefit very much from this.
