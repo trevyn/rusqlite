@@ -10,7 +10,14 @@ on:
       - master
   schedule:
     - cron: "00 01 * * *"
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      logLevel:
+        description: 'Log level'     
+        required: true
+        default: 'warning'
+      tags:
+        description: 'Test scenario tags'  
 env:
   RUST_BACKTRACE: short
   # CI builds don't benefit very much from this.
