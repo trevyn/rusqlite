@@ -12,19 +12,7 @@
 **
 ** This file implements an example of a simple VFS implementation that 
 ** omits complex features often not required or not possible on embedded
-** platforms.  Code is included to buffer writes to the journal file, 
-** which can be a significant performance improvement on some embedded
 ** platforms.
-**
-** OVERVIEW
-**
-**   The code in this file implements a minimal SQLite VFS that can be 
-**   used on Linux and other posix-like operating systems. The following 
-**   system calls are used:
-**
-**    File-system: access(), unlink(), getcwd()
-**    File IO:     open(), read(), write(), fsync(), close(), fstat()
-**    Other:       sleep(), usleep(), time()
 **
 **   The following VFS features are omitted:
 **
@@ -46,74 +34,7 @@
 **        SQLite to use "journal_mode=truncate", or use both
 **        "journal_mode=persist" and ATTACHed databases.
 **
-**   It is assumed that the system uses UNIX-like path-names. Specifically,
-**   that '/' characters are used to separate path components and that
-**   a path-name is a relative path unless it begins with a '/'. And that
-**   no UTF-8 encoded paths are greater than 512 bytes in length.
-**
-** JOURNAL WRITE-BUFFERING
-**
-**   To commit a transaction to the database, SQLite first writes rollback
-**   information into the journal file. This usually consists of 4 steps:
-**
-**     1. The rollback information is sequentially written into the journal
-**        file, starting at the start of the file.
-**     2. The journal file is synced to disk.
-**     3. A modification is made to the first few bytes of the journal file.
-**     4. The journal file is synced to disk again.
-**
-**   Most of the data is written in step 1 using a series of calls to the
-**   VFS xWrite() method. The buffers passed to the xWrite() calls are of
-**   various sizes. For example, as of version 3.6.24, when committing a 
-**   transaction that modifies 3 pages of a database file that uses 4096 
-**   byte pages residing on a media with 512 byte sectors, SQLite makes 
-**   eleven calls to the xWrite() method to create the rollback journal, 
-**   as follows:
-**
-**             Write offset | Bytes written
-**             ----------------------------
-**                        0            512
-**                      512              4
-**                      516           4096
-**                     4612              4
-**                     4616              4
-**                     4620           4096
-**                     8716              4
-**                     8720              4
-**                     8724           4096
-**                    12820              4
-**             ++++++++++++SYNC+++++++++++
-**                        0             12
-**             ++++++++++++SYNC+++++++++++
-**
-**   On many operating systems, this is an efficient way to write to a file.
-**   However, on some embedded systems that do not cache writes in OS 
-**   buffers it is much more efficient to write data in blocks that are
-**   an integer multiple of the sector-size in size and aligned at the
-**   start of a sector.
-**
-**   To work around this, the code in this file allocates a fixed size
-**   buffer of SQLITE_DEMOVFS_BUFFERSZ using sqlite3_malloc() whenever a 
-**   journal file is opened. It uses the buffer to coalesce sequential
-**   writes into aligned SQLITE_DEMOVFS_BUFFERSZ blocks. When SQLite
-**   invokes the xSync() method to sync the contents of the file to disk,
-**   all accumulated data is written out, even if it does not constitute
-**   a complete block. This means the actual IO to create the rollback 
-**   journal for the example transaction above is this:
-**
-**             Write offset | Bytes written
-**             ----------------------------
-**                        0           8192
-**                     8192           4632
-**             ++++++++++++SYNC+++++++++++
-**                        0             12
-**             ++++++++++++SYNC+++++++++++
-**
-**   Much more efficient if the underlying OS is not caching write 
-**   operations.
 */
-
-#if !defined(SQLITE_TEST) || SQLITE_OS_UNIX
 
 #include "sqlite3.h"
 
@@ -167,12 +88,7 @@ static int demoDirectWrite(
 ** a journal file) or if the buffer is currently empty.
 */
 static int demoFlushBuffer(DemoFile *p){
-  int rc = SQLITE_OK;
-  if( p->nBuffer ){
-    rc = demoDirectWrite(p, p->aBuffer, p->nBuffer, p->iBufferOfst);
-    p->nBuffer = 0;
-  }
-  return rc;
+  return SQLITE_IOERR;
 }
 
 /*
@@ -211,10 +127,7 @@ static int demoWrite(
 ** the top of the file).
 */
 static int demoTruncate(sqlite3_file *pFile, sqlite_int64 size){
-#if 0
-  if( ftruncate(((DemoFile *)pFile)->fd, size) ) return SQLITE_IOERR_TRUNCATE;
-#endif
-  return SQLITE_OK;
+  return SQLITE_IOERR;
 }
 
 /*
@@ -288,16 +201,6 @@ static int demoOpen(
 static int demoDelete(sqlite3_vfs *pVfs, const char *zPath, int dirSync){
   return SQLITE_IOERR;
 }
-
-#ifndef F_OK
-# define F_OK 0
-#endif
-#ifndef R_OK
-# define R_OK 4
-#endif
-#ifndef W_OK
-# define W_OK 2
-#endif
 
 /*
 ** Query the file-system to see if the named file exists, is readable or
@@ -426,55 +329,6 @@ sqlite3_vfs *sqlite3_demovfs(void){
   };
   return &demovfs;
 }
-
-#endif /* !defined(SQLITE_TEST) || SQLITE_OS_UNIX */
-
-
-#ifdef SQLITE_TEST
-
-#if defined(INCLUDE_SQLITE_TCL_H)
-#  include "sqlite_tcl.h"
-#else
-#  include "tcl.h"
-#  ifndef SQLITE_TCLAPI
-#    define SQLITE_TCLAPI
-#  endif
-#endif
-
-#if SQLITE_OS_UNIX
-static int SQLITE_TCLAPI register_demovfs(
-  ClientData clientData, /* Pointer to sqlite3_enable_XXX function */
-  Tcl_Interp *interp,    /* The TCL interpreter that invoked this command */
-  int objc,              /* Number of arguments */
-  Tcl_Obj *CONST objv[]  /* Command arguments */
-){
-  sqlite3_vfs_register(sqlite3_demovfs(), 1);
-  return TCL_OK;
-}
-static int SQLITE_TCLAPI unregister_demovfs(
-  ClientData clientData, /* Pointer to sqlite3_enable_XXX function */
-  Tcl_Interp *interp,    /* The TCL interpreter that invoked this command */
-  int objc,              /* Number of arguments */
-  Tcl_Obj *CONST objv[]  /* Command arguments */
-){
-  sqlite3_vfs_unregister(sqlite3_demovfs());
-  return TCL_OK;
-}
-
-/*
-** Register commands with the TCL interpreter.
-*/
-int Sqlitetest_demovfs_Init(Tcl_Interp *interp){
-  Tcl_CreateObjCommand(interp, "register_demovfs", register_demovfs, 0, 0);
-  Tcl_CreateObjCommand(interp, "unregister_demovfs", unregister_demovfs, 0, 0);
-  return TCL_OK;
-}
-
-#else
-int Sqlitetest_demovfs_Init(Tcl_Interp *interp){ return TCL_OK; }
-#endif
-
-#endif /* SQLITE_TEST */
 
 // Register sqlite3_demovfs
 int sqlite3_os_init()
