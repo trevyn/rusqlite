@@ -62,6 +62,41 @@ jobs:
           RUSTFLAGS: -Ctarget-feature=+crt-static -Cdebuginfo=1
         run: cargo build --features bundled
 
+  test-wasm32-unknown-unknown:
+    name: Test ${{ matrix.os }} (wasm32-unknown-unknown)
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        # TODO: find a way to test this on windows :(
+
+    steps:
+      - uses: actions/checkout@v2
+      # This has a matcher for test panics, so we use it even though elsewhere
+      # we use actions-rs/toolchain.
+      - uses: hecrj/setup-rust-action@v1
+        with:
+          rust-version: stable${{ matrix.host }}
+          targets: ${{ matrix.target }}
+
+      - run: cargo install wasm-pack
+
+      - name: Install Homebrew llvm
+        if: matrix.os == 'macos-latest'
+        run: brew install llvm
+
+      - name: Test wasm-pack macos-latest with Homebrew llvm
+        if: matrix.os == 'macos-latest'
+        env:
+          CC: /usr/local/opt/llvm/bin/clang
+          AR: /usr/local/opt/llvm/bin/llvm-ar
+        run: wasm-pack test --node --features bundled
+
+      - name: Test wasm-pack ${{ matrix.host }}
+        if: matrix.os != 'macos-latest'
+        run: wasm-pack test --node --features bundled
+
   test-sqlcipher-bundled:
     name: Test ${{ matrix.os }} (bundled SQLcipher + OpenSSL)
     runs-on: ${{ matrix.os }}
