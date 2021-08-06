@@ -58,6 +58,10 @@ mod allocator {
 
     #[no_mangle]
     pub unsafe extern "C" fn free(ptr: *mut u8) {
+        // The SQLite allocator stores the length in the first 8 bytes of the allocation.
+        // We re-use that to satisfy Rust's desire to know the Layout in dealloc().
+        // See https://sqlite.org/malloc.html#the_default_memory_allocator
+
         let mut size_a = [0; SQLITE_PTR_SIZE];
 
         size_a.as_mut_ptr().copy_from(ptr, SQLITE_PTR_SIZE);
