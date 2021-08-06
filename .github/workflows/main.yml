@@ -85,8 +85,8 @@ jobs:
 
       - name: Add llvm path on Windows
         if: matrix.os == 'windows-latest'
-        run: echo "::add-path::C:\msys64\mingw64\bin"
-
+        run: echo "C:\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        
       - run: cargo install wasm-pack
 
       - name: Test wasm-pack ${{ matrix.host }}
