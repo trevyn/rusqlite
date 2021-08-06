@@ -251,6 +251,17 @@ mod build_bundled {
             }
         }
         if env::var("TARGET") == Ok("wasm32-unknown-unknown".to_string()) {
+            // Apple clang doesn't support wasm32, so use Homebrew clang by default.
+            if env::var("HOST") == Ok("aarch64-apple-darwin".to_string())
+                || env::var("HOST") == Ok("x86_64-apple-darwin".to_string())
+            {
+                if let Err(_) = env::var("CC") {
+                    std::env::set_var("CC", "/usr/local/opt/llvm/bin/clang");
+                }
+                if let Err(_) = env::var("AR") {
+                    std::env::set_var("AR", "/usr/local/opt/llvm/bin/llvm-ar");
+                }
+            }
             cfg.flag("-DSQLITE_OS_OTHER")
                 .flag("-DSQLITE_TEMP_STORE=3")
                 // https://github.com/rust-lang/rust/issues/74393
