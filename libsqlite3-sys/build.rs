@@ -255,10 +255,10 @@ mod build_bundled {
             if env::var("HOST") == Ok("aarch64-apple-darwin".to_string())
                 || env::var("HOST") == Ok("x86_64-apple-darwin".to_string())
             {
-                if let Err(_) = env::var("CC") {
+                if env::var("CC").is_err() {
                     std::env::set_var("CC", "/usr/local/opt/llvm/bin/clang");
                 }
-                if let Err(_) = env::var("AR") {
+                if env::var("AR").is_err() {
                     std::env::set_var("AR", "/usr/local/opt/llvm/bin/llvm-ar");
                 }
             }
