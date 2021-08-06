@@ -79,15 +79,15 @@ jobs:
           rust-version: stable${{ matrix.host }}
           targets: ${{ matrix.target }}
 
-      - run: cargo install wasm-pack
-
       - name: Install Homebrew llvm
         if: matrix.os == 'macos-latest'
         run: brew install llvm
 
-      - name: Install Chocolatey llvm
+      - name: Add llvm path on Windows
         if: matrix.os == 'windows-latest'
-        run: choco install llvm
+        run: echo "::add-path::C:\msys64\mingw64\bin"
+
+      - run: cargo install wasm-pack
 
       - name: Test wasm-pack ${{ matrix.host }}
         run: wasm-pack test --node --features bundled
