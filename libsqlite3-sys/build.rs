@@ -235,7 +235,7 @@ mod build_bundled {
             if vs_has_nan {
                 cfg.flag("-DHAVE_ISNAN");
             }
-        } else {
+        } else if env::var("TARGET") != Ok("wasm32-unknown-unknown".to_string()) {
             cfg.flag("-DHAVE_ISNAN");
         }
         if !win_target() {
