@@ -1,7 +1,5 @@
 // wasm-pack test --firefox --headless --features bundled
 
-wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
-
 use rusqlite::{params, Connection};
 
 #[derive(Debug)]
@@ -13,7 +11,9 @@ struct Person {
 }
 
 #[wasm_bindgen_test::wasm_bindgen_test]
-fn node_test() {
+fn browser_test() {
+    wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
+
     let conn = Connection::open_in_memory().unwrap();
 
     conn.execute(
