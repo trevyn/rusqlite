@@ -89,6 +89,10 @@ jobs:
 
       - name: Add yarn path on Windows
         if: matrix.os == 'windows-latest'
+        run: yarn global bin
+
+      - name: Add yarn path on Windows
+        if: matrix.os == 'windows-latest'
         run: echo "%LOCALAPPDATA%\Yarn\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         
       - name: install wasm-pack
