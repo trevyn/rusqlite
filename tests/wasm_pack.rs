@@ -1,4 +1,6 @@
-// wasm-pack test --node --features bundled
+// wasm-pack test --firefox --headless --features bundled
+
+wasm_bindgen_test::wasm_bindgen_test_configure!(run_in_browser);
 
 use rusqlite::{params, Connection};
 
