@@ -91,7 +91,7 @@ jobs:
         run: curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
 
       - name: Test wasm-pack ${{ matrix.host }}
-        run: wasm-pack test --node --features bundled --target web
+        run: wasm-pack test --headless --features bundled-full
 
   test-sqlcipher-bundled:
     name: Test ${{ matrix.os }} (bundled SQLcipher + OpenSSL)
