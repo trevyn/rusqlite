@@ -85,9 +85,11 @@ jobs:
 
       - name: Add llvm path on Windows
         if: matrix.os == 'windows-latest'
-        run: 
-          - echo "C:\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          - echo "%LOCALAPPDATA%\Yarn\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+        run: echo "C:\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
+
+      - name: Add yarn path on Windows
+        if: matrix.os == 'windows-latest'
+        run: echo "%LOCALAPPDATA%\Yarn\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
         
       - name: install wasm-pack
         run:  yarn global add wasm-pack
