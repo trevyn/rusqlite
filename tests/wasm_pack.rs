@@ -4,6 +4,7 @@ use rusqlite::{params, Connection};
 
 #[derive(Debug)]
 struct Person {
+    #[allow(dead_code)]
     id: i32,
     name: String,
     data: Option<Vec<u8>>,
