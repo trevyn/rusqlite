@@ -87,6 +87,7 @@ jobs:
         if: matrix.os == 'windows-latest'
         run: echo "C:\msys64\mingw64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
+      # https://github.com/rustwasm/wasm-pack/issues/1097
       - name: Install wasm-pack on Windows
         if: matrix.os == 'windows-latest'
         run: npm install -g wasm-pack@0.10.1
