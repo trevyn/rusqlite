@@ -46,8 +46,25 @@ fn node_test() {
         .unwrap();
 
     let people: Vec<_> = person_iter.collect();
+
     assert_eq!(
         format!("{:?}", people),
         r#"[Ok(Person { id: 1, name: "Steven", data: None })]"#
     );
+
+    let _random: Vec<_> = conn
+        .prepare("SELECT random()")
+        .unwrap()
+        .query_map([], |row| row.get::<_, i64>(0))
+        .unwrap()
+        .collect();
+
+    // let now: Vec<_> = conn
+    //     .prepare(r#"SELECT datetime("now")"#)
+    //     .unwrap()
+    //     .query_map([], |row| row.get::<_, i64>(0))
+    //     .unwrap()
+    //     .collect();
+
+    // panic!("{:?}", &now);
 }
