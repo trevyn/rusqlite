@@ -271,9 +271,9 @@ mod build_bundled {
             cfg.flag("-DSQLITE_OS_OTHER")
                 .flag("-DSQLITE_TEMP_STORE=3")
                 // https://github.com/rust-lang/rust/issues/74393
-                .flag("-DLONGDOUBLE_TYPE=double");
+                .flag("-DLONGDOUBLE_TYPE=double")
+                .flag("-DSQLITE_OMIT_LOCALTIME");
             cfg.include("sqlite3/wasm32-unknown-unknown/include");
-            cfg.file("sqlite3/wasm32-unknown-unknown/sqlite_os.c");
             cfg.file("sqlite3/wasm32-unknown-unknown/libc/stdlib/qsort.c");
             cfg.file("sqlite3/wasm32-unknown-unknown/libc/string/strcmp.c");
             cfg.file("sqlite3/wasm32-unknown-unknown/libc/string/strcspn.c");

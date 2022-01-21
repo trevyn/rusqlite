@@ -1,3 +1,6 @@
+#[cfg(not(feature = "bundled"))]
+compile_error!("wasm32-unknown-unknown must be built with '--features bundled'");
+
 #[no_mangle]
 pub unsafe extern "C" fn sqlite3_os_init() -> std::os::raw::c_int {
     let vfs = crate::sqlite3_vfs {
