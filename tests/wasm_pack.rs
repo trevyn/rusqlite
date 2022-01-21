@@ -59,12 +59,16 @@ fn node_test() {
         .unwrap()
         .collect();
 
-    // let now: Vec<_> = conn
-    //     .prepare(r#"SELECT datetime("now")"#)
-    //     .unwrap()
-    //     .query_map([], |row| row.get::<_, i64>(0))
-    //     .unwrap()
-    //     .collect();
+    let now: Vec<_> = conn
+        .prepare(r#"SELECT cast(strftime('%Y') AS decimal)"#)
+        .unwrap()
+        .query_map([], |row| row.get::<_, i32>(0))
+        .unwrap()
+        .collect();
 
-    // panic!("{:?}", &now);
+    if let Ok(year) = now[0] {
+        assert!(year >= 2022 && year < 2050);
+    } else {
+        panic!("Expected a year");
+    }
 }
